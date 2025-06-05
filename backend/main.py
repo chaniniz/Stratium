@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -107,4 +108,55 @@ async def remove_watchlist(symbol: str, user: models.User = Depends(get_current_
     db.commit()
     return {"status": "deleted"}
 
+
+@app.get("/strategies")
+async def list_strategies():
+    from .strategies import STRATEGY_MAP
+    return [
+        {"name": name, "description": info["description"]}
+        for name, info in STRATEGY_MAP.items()
+    ]
+
+
+@app.post("/strategy/{name}/execute")
+async def execute_strategy(
+    name: str,
+    symbol: str,
+    user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from .strategies import STRATEGY_MAP
+    info = STRATEGY_MAP.get(name)
+    if not info:
+        raise HTTPException(status_code=404, detail="strategy not found")
+
+    prices = (
+        db.query(models.StockPrice)
+        .filter(models.StockPrice.symbol == symbol)
+        .order_by(models.StockPrice.date)
+        .all()
+    )
+    if not prices:
+        raise HTTPException(status_code=404, detail="symbol not found")
+
+    series = pd.Series({p.date: p.close for p in prices})
+    strategy = info["class"]()
+    signals = strategy.generate_signals(series)
+    trades = []
+    for dt, sig in signals.items():
+        if sig == 0:
+            continue
+        action = "BUY" if sig == 1 else "SELL"
+        log = models.TradeLog(
+            user_id=user.id,
+            symbol=symbol,
+            action=action,
+            price=series.loc[dt],
+            quantity=1,
+        )
+        db.add(log)
+        db.flush()
+        trades.append({"time": dt.isoformat(), "action": action, "price": series.loc[dt]})
+    db.commit()
+    return {"executed": trades}
 

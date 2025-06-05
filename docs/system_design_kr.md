@@ -11,7 +11,7 @@
 ```
 
 - **백엔드**: Python / FastAPI
-- **전략 모듈**: Z-Score 기반 평균회귀 전략 (Strategy 패턴 적용)
+- **전략 모듈**: 여러 매매 전략을 Strategy 패턴으로 구현하며, 자세한 내용은 `docs/strategies_kr.md` 참고
 - **데이터베이스**: MySQL (SQLAlchemy ORM 사용)
 - **스케줄러**: APScheduler로 월요일 매수, 금요일 매도 등 예약
 - **인증**: JWT + OAuth2 (카카오 로그인 확장 가능)
@@ -231,3 +231,5 @@ CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
 - 단위 테스트와 통합 테스트를 작성하여 CI 파이프라인에서 자동 실행.
 - 주문 실행 시 네트워크 장애에 대비한 재시도 로직과 슬랙/메일 알림을 추가 가능.
 - OAuth2 토큰 만료, 권한 체크 등을 엄격히 검증하여 보안성을 높인다.
+
+전략별 세부 설명은 `strategies_kr.md` 문서를 참고하세요.
