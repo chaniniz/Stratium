@@ -48,3 +48,13 @@
 {"status": "deleted"}
 ```
 필요에 따라 필드가 추가될 수 있습니다.
+
+## 전략 정보
+### `GET /strategies`
+사용 가능한 모든 전략 목록과 설명을 반환합니다.
+
+### `POST /strategy/{name}/execute`
+지정한 전략을 실행하여 매수/매도 신호에 따라 주문을 기록합니다.
+- `name`: 전략 이름 (`mean_reversion`, `momentum`, `trend_following` 등)
+- `symbol`: 대상 종목 코드 (쿼리 파라미터)
+

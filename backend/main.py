@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,7 @@ from .auth import (
     get_password_hash,
 )
 from .scheduler import schedule_jobs
+from . import kis_client
 
 
 app = FastAPI(title="Trading API")
@@ -40,12 +42,26 @@ async def get_prices(symbol: str, db: Session = Depends(get_db)):
 
 
 @app.post("/trade/{symbol}")
-async def trade(symbol: str, db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
-    log = models.TradeLog(user_id=user.id, symbol=symbol, action="BUY", price=0.0, quantity=1)
+async def trade(
+    symbol: str,
+    qty: int = 1,
+    price: float = 0.0,
+    side: str = "buy",
+    db: Session = Depends(get_db),
+    user: models.User = Depends(get_current_user),
+):
+    kis_result = kis_client.place_order(symbol, qty, price, side)
+    log = models.TradeLog(
+        user_id=user.id,
+        symbol=symbol,
+        action=side.upper(),
+        price=price,
+        quantity=qty,
+    )
     db.add(log)
     db.commit()
     db.refresh(log)
-    return {"trade_id": log.id, "status": "logged"}
+    return {"trade_id": log.id, "kis": kis_result}
 
 
 @app.get("/trade/history")
@@ -108,3 +124,54 @@ async def remove_watchlist(symbol: str, user: models.User = Depends(get_current_
     return {"status": "deleted"}
 
 
+@app.get("/strategies")
+async def list_strategies():
+    from .strategies import STRATEGY_MAP
+    return [
+        {"name": name, "description": info["description"]}
+        for name, info in STRATEGY_MAP.items()
+    ]
+
+
+@app.post("/strategy/{name}/execute")
+async def execute_strategy(
+    name: str,
+    symbol: str,
+    user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from .strategies import STRATEGY_MAP
+    info = STRATEGY_MAP.get(name)
+    if not info:
+        raise HTTPException(status_code=404, detail="strategy not found")
+
+    prices = (
+        db.query(models.StockPrice)
+        .filter(models.StockPrice.symbol == symbol)
+        .order_by(models.StockPrice.date)
+        .all()
+    )
+    if not prices:
+        raise HTTPException(status_code=404, detail="symbol not found")
+
+    series = pd.Series({p.date: p.close for p in prices})
+    strategy = info["class"]()
+    signals = strategy.generate_signals(series)
+    trades = []
+    for dt, sig in signals.items():
+        if sig == 0:
+            continue
+        action = "BUY" if sig == 1 else "SELL"
+        kis_client.place_order(symbol, 1, float(series.loc[dt]), "buy" if sig == 1 else "sell")
+        log = models.TradeLog(
+            user_id=user.id,
+            symbol=symbol,
+            action=action,
+            price=float(series.loc[dt]),
+            quantity=1,
+        )
+        db.add(log)
+        db.flush()
+        trades.append({"time": dt.isoformat(), "action": action, "price": float(series.loc[dt])})
+    db.commit()
+    return {"executed": trades}

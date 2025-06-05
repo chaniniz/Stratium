@@ -1,7 +1,7 @@
 # Stratium
 
 이 저장소는 한국투자증권 REST API를 활용한 국내 주식 자동매매 시스템 예제입니다.
-상세한 시스템 구조와 코드 샘플은 `docs/system_design_kr.md`와 API 문서 `docs/api_doc_kr.md`를 참고하세요.
+상세한 시스템 구조와 코드 샘플은 `docs/system_design_kr.md`, `docs/strategies_kr.md`와 API 문서 `docs/api_doc_kr.md`를 참고하세요.
 
 
 ## 개발 환경 설정
@@ -28,3 +28,6 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## 참고 및 주의사항
+이 프로젝트는 한국투자증권에서 공개한 [open-trading-api](https://github.com/koreainvestment/open-trading-api) 샘플 코드를 기반으로 작성되었습니다. 샘플 코드는 참고용이며 이를 이용한 투자 손실에 대해 개발자는 책임지지 않습니다.

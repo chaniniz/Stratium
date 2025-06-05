@@ -1,6 +1,8 @@
 # 시스템 설계 개요
 
 이 문서는 한국투자증권 REST API를 기반으로 한 국내 주식 자동매매 시스템의 설계 예시를 제공합니다. 전체 구성 요소는 다음과 같습니다.
+본 문서는 한국투자증권에서 제공하는 [open-trading-api](https://github.com/koreainvestment/open-trading-api) 샘플 코드를 참고하여 작성되었습니다. 샘플 코드를 활용한 투자 손실에 대한 책임은 사용자에게 있습니다.
+
 
 ## 아키텍처 요약
 
@@ -11,7 +13,7 @@
 ```
 
 - **백엔드**: Python / FastAPI
-- **전략 모듈**: Z-Score 기반 평균회귀 전략 (Strategy 패턴 적용)
+- **전략 모듈**: 여러 매매 전략을 Strategy 패턴으로 구현하며, 자세한 내용은 `docs/strategies_kr.md` 참고
 - **데이터베이스**: MySQL (SQLAlchemy ORM 사용)
 - **스케줄러**: APScheduler로 월요일 매수, 금요일 매도 등 예약
 - **인증**: JWT + OAuth2 (카카오 로그인 확장 가능)
@@ -176,6 +178,10 @@ SECRET_KEY=<임의 문자열>
 OPENAI_API_KEY=<OpenAI 키>
 KIS_APP_KEY=<증권사 앱 키>
 KIS_APP_SECRET=<증권사 시크릿>
+KIS_ACCOUNT=<계좌번호 앞 8자리>
+KIS_ACCOUNT_PRODUCT_CODE=<계좌번호 뒤 2자리>
+KIS_URL_BASE=https://openapi.koreainvestment.com:9443
+KIS_HTS_ID=<HTS ID>
 ```
 Docker Compose와 로컬 실행 모두 동일한 `.env` 파일을 사용하므로, 사용자 는 이 파일만 적절히 작성하면 서비스를 즉시 실행할 수 있다.
 
@@ -231,3 +237,5 @@ CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
 - 단위 테스트와 통합 테스트를 작성하여 CI 파이프라인에서 자동 실행.
 - 주문 실행 시 네트워크 장애에 대비한 재시도 로직과 슬랙/메일 알림을 추가 가능.
 - OAuth2 토큰 만료, 권한 체크 등을 엄격히 검증하여 보안성을 높인다.
+
+전략별 세부 설명은 `strategies_kr.md` 문서를 참고하세요.

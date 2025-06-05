@@ -6,4 +6,5 @@ numpy
 python-jose[cryptography]
 passlib[bcrypt]
 APScheduler
+requests
 pytest
