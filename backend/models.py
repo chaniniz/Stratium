@@ -48,3 +48,4 @@ class WeeklyReport(Base):
     symbol = Column(String(20))
     created_at = Column(DateTime, default=datetime.utcnow)
     content = Column(String)
+

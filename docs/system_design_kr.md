@@ -3,6 +3,7 @@
 이 문서는 한국투자증권 REST API를 기반으로 한 국내 주식 자동매매 시스템의 설계 예시를 제공합니다. 전체 구성 요소는 다음과 같습니다.
 본 문서는 한국투자증권에서 제공하는 [open-trading-api](https://github.com/koreainvestment/open-trading-api) 샘플 코드를 참고하여 작성되었습니다. 샘플 코드를 활용한 투자 손실에 대한 책임은 사용자에게 있습니다.
 
+
 ## 아키텍처 요약
 
 ```text

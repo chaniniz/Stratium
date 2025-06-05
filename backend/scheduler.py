@@ -7,6 +7,7 @@ from . import models
 from .database import get_db
 from .openai_client import generate_weekly_report
 
+
 scheduler = AsyncIOScheduler()
 
 
