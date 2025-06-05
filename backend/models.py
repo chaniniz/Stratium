@@ -29,8 +29,7 @@ class TradeLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")
-
-
+    
 class Watchlist(Base):
     __tablename__ = "watchlists"
     id = Column(Integer, primary_key=True)

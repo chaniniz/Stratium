@@ -107,3 +107,4 @@ async def remove_watchlist(symbol: str, user: models.User = Depends(get_current_
     db.commit()
     return {"status": "deleted"}
 
+
