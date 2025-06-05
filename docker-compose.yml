@@ -3,6 +3,11 @@ services:
   db:
     image: mysql:8
     env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
     ports:
@@ -22,7 +27,7 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
-    command: npm run dev
+    command: sh -c 'npm install && npm run dev'
     ports:
       - "3000:3000"
 volumes:

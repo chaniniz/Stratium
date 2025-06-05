@@ -27,7 +27,9 @@ class TradeLog(Base):
     price = Column(Float)
     quantity = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
+
     user = relationship("User")
+
 
 class Watchlist(Base):
     __tablename__ = "watchlists"
@@ -36,3 +38,14 @@ class Watchlist(Base):
     symbol = Column(String(20))
 
     user = relationship("User")
+
+
+class WeeklyReport(Base):
+    """OpenAI로 생성된 주간 보고서 저장용 모델"""
+
+    __tablename__ = "weekly_reports"
+    id = Column(Integer, primary_key=True)
+    symbol = Column(String(20))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    content = Column(String)
+

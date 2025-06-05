@@ -7,4 +7,5 @@ python-jose[cryptography]
 passlib[bcrypt]
 APScheduler
 requests
+openai
 pytest

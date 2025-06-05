@@ -1,12 +1,14 @@
 import pandas as pd
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
 from .models import Base
 from . import models
 from .auth import (
-    login_for_access_token,
+    authenticate_user,
+    create_access_token,
     get_current_user,
     get_password_hash,
 )
@@ -24,8 +26,16 @@ async def startup_event():
 
 
 @app.post("/token")
-async def login(form_data: Depends(login_for_access_token)):
-    return form_data
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    """사용자 로그인 후 JWT 토큰을 발급한다."""
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect credentials")
+    access_token = create_access_token({"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.get("/prices/{symbol}")
@@ -175,3 +185,18 @@ async def execute_strategy(
         trades.append({"time": dt.isoformat(), "action": action, "price": float(series.loc[dt])})
     db.commit()
     return {"executed": trades}
+
+
+@app.get("/reports")
+async def get_reports(db: Session = Depends(get_db)):
+    """저장된 주간 보고서 목록을 반환"""
+    reports = db.query(models.WeeklyReport).order_by(models.WeeklyReport.created_at.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "symbol": r.symbol,
+            "created_at": r.created_at.isoformat(),
+            "content": r.content,
+        }
+        for r in reports
+    ]

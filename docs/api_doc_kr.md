@@ -58,3 +58,6 @@
 - `name`: 전략 이름 (`mean_reversion`, `momentum`, `trend_following` 등)
 - `symbol`: 대상 종목 코드 (쿼리 파라미터)
 
+## 주간 리포트
+### `GET /reports`
+OpenAI API를 통해 생성된 주간 보고서 목록을 반환합니다.
