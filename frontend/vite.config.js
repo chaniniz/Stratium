@@ -7,7 +7,8 @@ export default defineConfig({
     proxy: {
       '/prices': 'http://localhost:8000',
       '/token': 'http://localhost:8000',
-      '/trade': 'http://localhost:8000'
+      '/trade': 'http://localhost:8000',
+      '/watchlist': 'http://localhost:8000'
     }
   }
 });
