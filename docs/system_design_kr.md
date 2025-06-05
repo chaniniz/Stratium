@@ -139,19 +139,45 @@ async def trade(symbol: str, user = Depends(get_current_user), db: Session = Dep
 ## 프론트엔드 구조 예시
 ```
 frontend/
+  ├── public/
+  │   └── index.html
   ├── src/
   │   ├── components/
-  │   │   ├── Chart.vue (또는 Chart.jsx)
-  │   │   ├── LoginForm.vue
-  │   │   └── StrategyForm.vue
-  │   ├── pages/
-  │   │   ├── Dashboard.vue
-  │   │   ├── Settings.vue
-  │   │   └── Watchlist.vue
-  │   └── main.js
-  └── package.json
+  │   │   └── PriceChart.jsx
+  │   ├── App.jsx
+  │   └── index.js
+  ├── package.json
+  └── vite.config.js
 ```
-프론트엔드는 REST API를 호출하여 실시간 시세 조회, 전략 설정, 통계 리포트 등을 보여준다.
+프론트엔드는 React와 Vite 기반으로 동작하며 REST API를 호출해 실시간 시세 조회, 전략 설정, 통계 리포트를 제공한다.
+
+### API 사용 예시
+```javascript
+// 종가 데이터 조회
+axios.get(`/prices/005930`).then(res => console.log(res.data));
+
+// 로그인 후 토큰 저장
+axios.post('/token', new URLSearchParams({username:'user', password:'pass'}))
+     .then(res => localStorage.setItem('token', res.data.access_token));
+
+// 매수 요청
+axios.post('/trade/005930', {}, {
+  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+});
+```
+
+### 환경 변수 관리
+프로젝트 루트에 `.env` 파일을 두고 다음과 같은 값을 설정한다. 예시는
+`.env.example` 파일에 포함되어 있다.
+
+```
+DATABASE_URL=mysql+pymysql://user:password@db:3306/trading
+SECRET_KEY=<임의 문자열>
+OPENAI_API_KEY=<OpenAI 키>
+KIS_APP_KEY=<증권사 앱 키>
+KIS_APP_SECRET=<증권사 시크릿>
+```
+Docker Compose와 로컬 실행 모두 동일한 `.env` 파일을 사용하므로, 사용자 는 이 파일만 적절히 작성하면 서비스를 즉시 실행할 수 있다.
 
 ## Docker Compose 및 Dockerfile 예시
 ```yaml
