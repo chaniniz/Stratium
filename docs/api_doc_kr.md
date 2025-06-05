@@ -57,3 +57,4 @@
 지정한 전략을 실행하여 매수/매도 신호에 따라 주문을 기록합니다.
 - `name`: 전략 이름 (`mean_reversion`, `momentum`, `trend_following` 등)
 - `symbol`: 대상 종목 코드 (쿼리 파라미터)
+

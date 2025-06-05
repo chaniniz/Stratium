@@ -27,9 +27,7 @@ class TradeLog(Base):
     price = Column(Float)
     quantity = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
-
     user = relationship("User")
-
 
 class Watchlist(Base):
     __tablename__ = "watchlists"
